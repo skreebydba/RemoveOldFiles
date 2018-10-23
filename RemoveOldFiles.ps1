@@ -1,17 +1,17 @@
-﻿function Do-Something {
+﻿function Remove-OldFiles {
   <#
   .SYNOPSIS
-  Describe the function here
+  Delete files older than a specified date.
   .DESCRIPTION
-  Describe the function in more detail
+  Return a list of files from a specified directory older than a specified in a grid view.  Delete the selected files.
   .EXAMPLE
   Give an example of how to use it
   .EXAMPLE
   Give another example of how to use it
-  .PARAMETER computername
-  The computer name to query. Just one.
-  .PARAMETER logname
-  The name of a file to write failed computer names to. Defaults to errors.txt.
+  .PARAMETER filepath 
+  The file path to search for old files.
+  .PARAMETER days
+  Number of days to check for files.
   #>
   [CmdletBinding(SupportsShouldProcess=$True,ConfirmImpact='Low')]
   param
@@ -19,28 +19,22 @@
     [Parameter(Mandatory=$True,
     ValueFromPipeline=$True,
     ValueFromPipelineByPropertyName=$True,
-      HelpMessage='What computer name would you like to target?')]
-    [Alias('host')]
-    [ValidateLength(3,30)]
-    [string[]]$computername,
-		
-    [string]$logname = 'errors.txt'
+      HelpMessage='What file path do you want to delete files from?')]
+    [Alias('path')]
+    [ValidateLength(3,255)]
+    [string[]]$filepath,
+    [Parameter(Mandatory=$True,
+    ValueFromPipeline=$True,
+    ValueFromPipelineByPropertyName=$True,
+      HelpMessage='Enter the number of days you want to go back to delete files?')]
+    [Alias('days')]
+    [ValidateLength(3,255)]
+    [string[]]$numberofdays
   )
 
-  begin {
-  write-verbose "Deleting $logname"
-    del $logname -ErrorActionSilentlyContinue
-  }
 
   process {
 
-    write-verbose "Beginning process loop"
-
-    foreach ($computer in $computername) {
-      Write-Verbose "Processing $computer"
-      if ($pscmdlet.ShouldProcess($computer)) {
-        # use $computer here
+        Get-ChildItem $filepath -Recurse -File | Where CreationTime -lt  (Get-Date).AddDays($numberofdays) | Out-GridView -PassThru | Remove-Item -Force;
       }
     }
-  }
-}
