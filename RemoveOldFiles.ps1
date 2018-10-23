@@ -1,4 +1,8 @@
-﻿function Remove-OldFiles {
+﻿<#
+    Created By: Frank Gill, Concurrency, Inc.
+    Created: 2018-10-23
+#>
+function Remove-OldFiles {
   <#
   .SYNOPSIS
   Delete files older than a specified date.
@@ -36,14 +40,15 @@
     ValueFromPipelineByPropertyName=$True,
       HelpMessage='What file extension do you want to search for?')]
     [Alias('ext')]
-    [ValidateLength(2,15)]
-    [string[]]$extension
+    [ValidateLength(1,15)]
+    [string]$extension
   )
 
 
   process {
         
         $extension = "*" + $extension
-        Get-ChildItem $filepath -Recurse -File -Filter $extension | Where CreationTime -lt  (Get-Date).AddDays($numberofdays) | Out-GridView -PassThru | Remove-Item -Force;
+        $daterange = $numberofdays * -1;
+        Get-ChildItem $filepath -Recurse -File -Filter $extension | Where CreationTime -lt  (Get-Date).AddDays($daterange) | Sort-Object length -Descending | Out-GridView -PassThru | Remove-Item -Force;
       }
     }
