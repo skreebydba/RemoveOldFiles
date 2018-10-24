@@ -1,0 +1,1 @@
+﻿Remove-OldFiles -filepath 'C:\Backup\' -numberofdays 30 #-extension "bak";

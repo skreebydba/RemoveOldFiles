@@ -41,14 +41,45 @@ function Remove-OldFiles {
       HelpMessage='What file extension do you want to search for?')]
     [Alias('ext')]
     [ValidateLength(1,15)]
-    [string]$extension
-  )
+    [string]$extension,
+    [Parameter(Mandatory=$False,
+    ValueFromPipeline=$True,
+    ValueFromPipelineByPropertyName=$True,
+      HelpMessage='What file extension do you want to search for?')]
+    [Alias('srvr')]
+    [ValidateLength(1,50)]
+    [string]$server,
+    [Parameter(Mandatory=$False,
+    ValueFromPipeline=$True,
+    ValueFromPipelineByPropertyName=$True,
+      HelpMessage='What file extension do you want to search for?')]
+    [Alias('drv')]
+    [ValidateLength(1,15)]
+    [string]$drive,
+    [Parameter(Mandatory=$False,
+    ValueFromPipeline=$True,
+    ValueFromPipelineByPropertyName=$True,
+      HelpMessage='Do you want to delete files?')]
+    [Alias('del')]
+    [ValidateLength(1,15)]
+    [string]$delete)
 
 
   process {
         
-        $extension = "*" + $extension
+        $extension = "*" + $extension;
         $daterange = $numberofdays * -1;
-        Get-ChildItem $filepath -Recurse -File -Filter $extension | Where CreationTime -lt  (Get-Date).AddDays($daterange) | Sort-Object length -Descending | Out-GridView -PassThru | Remove-Item -Force;
+        $date = Get-Date -Format yyyyMMdd_HHmmss;
+        
+        if($delete -eq "Y")
+        {
+            Get-ChildItem $filepath -Recurse -File -Filter $extension | Where CreationTime -lt  (Get-Date).AddDays($daterange) | Sort-Object length -Descending | Out-GridView -PassThru | Remove-Item -Force;
+        }
+        else
+        {
+            $outfile = "C:\temp\$server`_$drive`_bigfiles_$date.txt";
+            $outfile;
+            Get-ChildItem $filepath -Recurse -File -Filter $extension | Where CreationTime -lt  (Get-Date).AddDays($daterange) | Sort-Object length -Descending | Select-Object -First 10 | Out-File $outfile;
+        }
       }
     }
